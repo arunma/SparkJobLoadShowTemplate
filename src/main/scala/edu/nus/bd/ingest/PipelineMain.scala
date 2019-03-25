@@ -9,8 +9,6 @@ object PipelineMain {
   def main(args: Array[String]): Unit = {
 
     val readFilePath = args(0)
-    val outputFilePath = args(1)
-
     val sparkConf = buildSparkConf()
 
     implicit val spark = SparkSession
@@ -22,11 +20,11 @@ object PipelineMain {
     LogManager.getRootLogger.setLevel(Level.WARN)
     spark.sparkContext.setLogLevel("ERROR")
 
-    runPipeline(readFilePath, outputFilePath)
+    runPipeline(readFilePath)
 
   }
 
-  private def runPipeline(readFilePath: String, outputFilePath: String)(implicit spark: SparkSession) = {
+  private def runPipeline(readFilePath: String)(implicit spark: SparkSession) = {
     val inputDf = readFile(readFilePath)
     showData(inputDf)
   }
