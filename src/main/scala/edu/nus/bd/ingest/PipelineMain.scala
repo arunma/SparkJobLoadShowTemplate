@@ -1,47 +1,24 @@
 package edu.nus.bd.ingest
 
-import org.apache.log4j.{Level, LogManager}
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 import org.apache.spark.sql.types._
+import org.apache.spark.sql.{SaveMode, SparkSession}
 
 object PipelineMain {
   def main(args: Array[String]): Unit = {
 
-    val readFilePath = args(0)
-    val sparkConf = buildSparkConf()
-
-    implicit val spark = SparkSession
+    val spark = SparkSession
       .builder()
-      .config(sparkConf)
+      .config(new SparkConf())
       .appName("Boring Pipeline")
       .master("local[*]")
       .getOrCreate()
-    LogManager.getRootLogger.setLevel(Level.WARN)
-    spark.sparkContext.setLogLevel("ERROR")
-
-    runPipeline(readFilePath)
-
-  }
-
-  private def runPipeline(readFilePath: String)(implicit spark: SparkSession) = {
-    val inputDf = readFile(readFilePath)
-    showData(inputDf)
-  }
-
-  private def readFile(filePath: String)(implicit spark: SparkSession) = {
 
     val schema = StructType(Seq(
-      StructField("url", StringType),
-      StructField("urlid", IntegerType),
-      StructField("alchemy_category", StringType),
-      StructField("is_news", StringType),
-      StructField("lengthyLinkDomain", IntegerType),
-      StructField("news_front_page", StringType),
-      StructField("non_markup_alphanum_characters", LongType),
-      StructField("numberOfLinks", IntegerType),
-      StructField("numwords_in_url", IntegerType),
-      StructField("spelling_errors_ratio", DoubleType)
+      StructField("name", StringType),
+      StructField("email", StringType),
+      StructField("age", IntegerType),
+      StructField("country", StringType)
     ))
 
     val sourceRawDf =
@@ -49,25 +26,19 @@ object PipelineMain {
         .read
         .format("csv")
         .option("header", true)
-        .option("delimiter", "\t")
+        .option("delimiter", "|")
         .schema(schema)
-        .load(filePath)
+        .load("/user/arun/source/NameEmailCountry.csv")
+
 
     sourceRawDf
+      .write
+      .format("parquet")
+      .option("compression", "snappy")
+      .mode(SaveMode.Overwrite)
+      .save("/user/arun/demo")
+
+
   }
 
-
-  def showData(inputDf: DataFrame)(implicit spark: SparkSession): Unit = {
-    inputDf.printSchema()
-    inputDf.show(false)
-  }
-
-  def buildSparkConf(): SparkConf = new SparkConf()
-    .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    .set("mapreduce.fileoutputcommitter.marksuccessfuljobs", "false")
-    .set("spark.sql.streaming.schemaInference", "true")
-    .set("spark.sql.autoBroadcastJoinThreshold", "-1")
-    .set("spark.scheduler.mode", "FAIR")
-    .set("spark.sql.warehouse.dir", "/tmp/awaywarehose")
-    .set("spark.kryoserializer.buffer.max", "1g")
 }

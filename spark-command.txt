@@ -1,0 +1,13 @@
+bin/spark-submit \
+    --master k8s://http://127.0.0.1:8080 \
+    --deploy-mode cluster \
+    --name spark-list-df \
+    --class edu.nus.bd.ingest.PipelineMain \
+    --conf spark.executor.instances=1 \
+    --conf spark.kubernetes.container.image=spark:spark240 \
+    --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \
+    --conf spark.kubernetes.driver.volumes.persistentVolumeClaim.jarpathpvc1.mount.path=/opt/jars \
+    --conf spark.kubernetes.driver.volumes.persistentVolumeClaim.jarpathpvc1.options.claimName=jarpathpvco \
+    --conf spark.kubernetes.executor.volumes.persistentVolumeClaim.jarpathpvc1.mount.path=/opt/jars \
+    --conf spark.kubernetes.executor.volumes.persistentVolumeClaim.jarpathpvc1.options.claimName=jarpathpvco \
+    local:///opt/jars/SparkJobLoadShowTemplate-assembly-0.1.jar file:///opt/jars/evergreen_stumbleupon_no_header.tsv
