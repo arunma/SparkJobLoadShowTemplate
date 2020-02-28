@@ -9,11 +9,14 @@ import org.apache.spark.sql.functions._
 object DataFrameLoad {
   def main(args: Array[String]): Unit = {
 
+    //val filePath="/Users/arunma/IdeaProjects/SparkJobLoadShowTemplate/src/main/resources/NameEmailCountryWithHeaders.csv"
+    val filePath = args(0)
+
     val spark = SparkSession
       .builder()
       .config(new SparkConf())
-      .appName("RDD Load Pipeline")
-      .master("local[*]")
+      .appName("DataFrame Load Pipeline")
+      //.master("local[*]")
       .getOrCreate()
 
     LogManager.getRootLogger.setLevel(Level.WARN)
@@ -22,16 +25,15 @@ object DataFrameLoad {
     val sourceDf: DataFrame = spark.read
       .option("header", true)
       .option("inferSchema", true)
-      .option("delimiter", "|")
-      .csv("/Users/arunma/IdeaProjects/SparkJobLoadShowTemplate/src/main/resources/NameEmailCountryWithHeaders.csv")
+      .option("delimiter", ",")
+      .format("csv")
+      .load(filePath)
 
 
-    val totalAge = sourceDf.agg(sum(col("age")))
-
-    totalAge.show()
-
+    //val totalAge = sourceDf.agg(sum(col("age")))
+    sourceDf.show()
     Thread.sleep(100000)
-
+    spark.stop()
   }
 
 

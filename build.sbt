@@ -3,7 +3,7 @@ name := "SparkJobLoadShowTemplate"
 version := "0.1"
 
 scalaVersion := "2.11.12"
-val sparkVersion = "2.4.0"
+val sparkVersion = "2.4.5"
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % Provided exclude("org.scalatest", "scalatest_2.11"),
